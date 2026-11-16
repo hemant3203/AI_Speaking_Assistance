@@ -1,0 +1,25 @@
+# Render Blueprint: the whole app as one free web service. The database is external (Neon), because
+# Render's free Postgres is deleted after 30 days. See docs/DEPLOY-RENDER.md.
+services:
+  - type: web
+    name: spotlight
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./deploy/render/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/ping
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Asked for on first deploy. Neon's string, starting postgresql+psycopg://
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: ADMIN_EMAIL
+        sync: false # Optional. Leave empty for no admin account.
+      - key: ADMIN_PASSWORD
+        sync: false

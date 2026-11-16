@@ -1,0 +1,10 @@
+# Context for deploy/render/Dockerfile, which builds from the repository root.
+.env
+.git
+logs
+docs
+**/node_modules
+**/dist
+**/__pycache__
+**/.pytest_cache
+backend/tests

@@ -1,0 +1,295 @@
+/* Design tokens and global styles for "a stage at night": warm ink, one amber spotlight, and motion
+   that stays quiet until a moment earns it. */
+@import 'tailwindcss';
+
+/* `static` keeps every token as a CSS variable, because charts reference them from JS as var(--color-*). */
+@theme static {
+  /* Stage surfaces, darkest to lightest. Charts validate against --color-surface. */
+  --color-stage: #110e0c;
+  --color-surface: #1b1815;
+  --color-raised: #25211c;
+  --color-overlay: #302b25;
+
+  /* Hairlines are decorative. --color-control meets 3:1 for input borders. */
+  --color-line: #38322b;
+  --color-line-strong: #4b4439;
+  --color-control: #7f7364;
+
+  /* Ink */
+  --color-ink: #f5efe6;
+  --color-ink-soft: #cfc5b6;
+  --color-ink-muted: #a59988;
+
+  /* The one action color. Nothing else on screen is allowed to look clickable-amber. */
+  --color-amber: #ffb84d;
+  --color-amber-bright: #ffc971;
+  --color-amber-deep: #e89a2b;
+  --color-on-amber: #201404;
+
+  /* Reserved roles: flame is only the streak, mint is only XP and progress, spark is only the currency. */
+  --color-flame: #ff7a45;
+  --color-flame-soft: #ffb08c;
+  --color-mint: #5fe0b7;
+  --color-mint-deep: #17463a;
+  --color-spark: #f6d27a;
+  --color-frost: #9fd4e6;
+
+  /* Status: always paired with an icon and a label. */
+  --color-good: #34c759;
+  --color-warning: #fab219;
+  --color-serious: #ec835a;
+  --color-danger: #ff8d85;
+  --color-danger-solid: #c8322f;
+
+  /* Badge tiers */
+  --color-bronze: #d29a6c;
+  --color-silver: #c9cfd6;
+  --color-gold: #ecc452;
+
+  /* Dark categorical slots, in fixed order. Validated against --color-surface. */
+  --color-series-1: #3987e5;
+  --color-series-2: #d95926;
+  --color-series-3: #199e70;
+  --color-series-4: #c98500;
+  --color-series-5: #d55181;
+  --color-series-6: #008300;
+  --color-series-7: #9085e9;
+  --color-series-8: #e66767;
+
+  /* Chart furniture stays one step off the surface so the data is the only loud thing. */
+  --color-chart-grid: #2c2823;
+  --color-chart-axis: #3f382f;
+  --color-chart-deemph: #6d6457;
+  --color-chart-band: #f5efe61a;
+
+  /* Heatmap: one sequential hue, dark to light as activity rises. */
+  --color-heat-0: #25211c;
+  --color-heat-1: #17463a;
+  --color-heat-2: #1f7259;
+  --color-heat-3: #36a583;
+  --color-heat-4: #7ce9c5;
+
+  --font-display: 'Bricolage Grotesque Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-sans: 'Instrument Sans Variable', system-ui, -apple-system, 'Segoe UI', 'Noto Sans Devanagari', 'Nirmala UI', sans-serif;
+
+  --radius-card: 1.25rem;
+
+  --ease-stage: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-rise: rise 0.6s var(--ease-stage) both;
+  --animate-pop: pop 0.5s var(--ease-stage) both;
+  --animate-flicker: flicker 2.8s ease-in-out infinite;
+  --animate-breathe: breathe 10s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-beam-open: beam-open 1s var(--ease-stage) both;
+  --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
+  --animate-drift: drift 7s ease-in-out infinite;
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.72);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes flicker {
+    0%,
+    100% {
+      transform: scale(1) rotate(-1deg);
+    }
+    35% {
+      transform: scale(1.05, 0.97) rotate(1.5deg);
+    }
+    65% {
+      transform: scale(0.97, 1.04) rotate(-1.5deg);
+    }
+  }
+  /* In for four seconds, out for six: the rhythm the breathing cue on stage asks for. */
+  @keyframes breathe {
+    0%,
+    100% {
+      transform: scale(0.82);
+      opacity: 0.45;
+    }
+    40% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes beam-open {
+    from {
+      opacity: 0;
+      transform: scaleX(0.15);
+    }
+    to {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+  }
+  @keyframes pulse-ring {
+    0% {
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-amber) 45%, transparent);
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 0 10px transparent;
+    }
+  }
+  @keyframes drift {
+    0%,
+    100% {
+      opacity: 0.15;
+      transform: translateY(0);
+    }
+    50% {
+      opacity: 0.7;
+      transform: translateY(-12px);
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-stage);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--color-stage);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  /* One focus treatment everywhere, visible on every surface including the amber button. */
+  :focus-visible {
+    outline: 2px solid var(--color-amber-bright);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-amber) 40%, transparent);
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  dialog::backdrop {
+    background: rgb(8 6 5 / 0.72);
+  }
+}
+
+@layer components {
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+  }
+  .kicker {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+  .skeleton {
+    border-radius: 0.75rem;
+    background: linear-gradient(90deg, var(--color-raised) 25%, var(--color-overlay) 50%, var(--color-raised) 75%);
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+  /* The ambient house light: a soft pool from above, so every page feels like it sits on the stage. */
+  .house-light {
+    background-image: radial-gradient(70rem 26rem at 50% -8rem, color-mix(in srgb, var(--color-amber) 9%, transparent), transparent 70%);
+    background-repeat: no-repeat;
+  }
+  .table-data th {
+    font-weight: 600;
+    color: var(--color-ink-muted);
+    font-size: 0.8125rem;
+  }
+  .table-data td,
+  .table-data th {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+    white-space: nowrap;
+  }
+  .table-data td {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-ink-soft);
+  }
+}
+
+/* Recharts draws a focus box around the whole svg. Our cards already show focus on their controls. */
+.recharts-surface:focus,
+.recharts-wrapper:focus {
+  outline: none;
+}
+.recharts-wrapper:focus-visible {
+  outline: 2px solid var(--color-amber-bright);
+  outline-offset: 2px;
+}
+.recharts-text {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .card {
+    border-color: CanvasText;
+  }
+}

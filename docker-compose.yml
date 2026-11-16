@@ -1,0 +1,64 @@
+# Spotlight: frontend on :1201, backend on :1200.
+# BIND_ADDRESS defaults to loopback so the app is not exposed to the local network.
+name: spotlight
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    # Published on loopback only, for local tools. The backend still connects to db:5432 inside Docker.
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:1202:5432"
+    volumes:
+      # A named volume, because database files on a OneDrive-synced folder risk corruption.
+      - spotlight-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    logging: *default-logging
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:1200:1200"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # Logs go to the project folder so they are easy to read.
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:1200/api/v1/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    logging: *default-logging
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:1201:1201"
+    depends_on:
+      backend:
+        condition: service_healthy
+    logging: *default-logging
+
+volumes:
+  spotlight-data:
